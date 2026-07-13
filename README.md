@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./assets/website-change-monitor-banner.svg" alt="Website Change Monitor Lite banner" width="100%" />
+  <img src="./assets/website-change-monitor-banner-v2.svg" alt="Website Change Monitor Lite banner" width="100%" />
 </div>
 
 <br>
