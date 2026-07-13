@@ -1,2 +1,5 @@
-requests
-beautifulsoup4
+__pycache__/
+*.pyc
+.venv/
+data/*.csv
+data/*.json
