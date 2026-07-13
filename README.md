@@ -1,209 +1,190 @@
 # Website Change Monitor Lite
 
-A Python CLI tool that checks public web pages for content changes and exports a structured CSV report.
+A lightweight Python CLI that monitors public web pages for visible-text changes and exports a CSV report.
 
-The tool reads a list of URLs, fetches each page, extracts visible text, generates a SHA256 hash, compares it with the previous saved hash, and reports whether each page is new, unchanged, or changed.
+The monitor fetches each URL, removes non-visible content, normalizes the remaining text, generates a SHA-256 hash, and compares it with the last successful observation. HTTP and network failures are reported without overwriting previously saved hashes.
 
 ## Features
 
-* Reads URLs from a `.txt` file
-* Fetches public web pages with `requests`
-* Extracts visible page text with BeautifulSoup
-* Removes `script`, `style`, and `noscript` content before hashing
-* Normalizes page text before comparison
-* Generates SHA256 hashes for page content
-* Saves previous page hashes in a JSON state file
-* Detects new, unchanged, and changed pages
-* Exports a CSV report
-* Handles request errors without crashing
-* Supports a custom state file with `--state-file`
+- Reads one URL per line from a plain-text input file
+- Fetches public pages with a 10-second timeout and explicit HTTP status validation
+- Extracts visible text with Beautiful Soup
+- Removes `script`, `style`, and `noscript` content before comparison
+- Collapses repeated whitespace to reduce formatting-only changes
+- Detects new, unchanged, and changed content
+- Distinguishes HTTP failures from connection and request failures
+- Preserves the last good hash when a fetch fails
+- Saves state atomically through a temporary file
+- Creates missing output directories automatically
+- Exports a structured CSV report
+- Includes a focused pytest regression suite
 
-## Why This Project
+## How It Works
 
-Many clients need a simple way to monitor public web pages for updates, such as:
-
-* product availability changes
-* pricing page updates
-* competitor website changes
-* content updates
-* status or announcement page changes
-* public listing page changes
-
-This project is a lightweight first version of a website monitoring workflow.
-
-## Tech Stack
-
-* Python
-* requests
-* BeautifulSoup
-* hashlib
-* json
-* csv
-* argparse
-* datetime
+1. Load URLs from the input file.
+2. Load the most recent successful hash for each URL.
+3. Fetch every page and validate its HTTP response.
+4. Extract and normalize visible text.
+5. Hash the normalized text with SHA-256.
+6. Compare the new hash with the saved hash.
+7. Update state only after a successful fetch.
+8. Write the run results to CSV.
 
 ## Project Structure
 
 ```text
 website-change-monitor-lite/
-  src/
-    main.py
-    fetcher.py
-    monitor.py
-    storage.py
-    logger_config.py
+├── src/
+│   ├── fetcher.py
+│   ├── main.py
+│   ├── monitor.py
+│   └── storage.py
+├── tests/
+│   ├── test_fetcher.py
+│   ├── test_main.py
+│   ├── test_monitor.py
+│   └── test_storage.py
+├── data/
+│   └── .gitkeep
+├── .gitignore
+├── README.md
+├── requirements.txt
+└── requirements-dev.txt
+```
 
-  data/
-    .gitkeep
-    urls.txt
+## Requirements
 
-  README.md
-  requirements.txt
-  .gitignore
+- Python 3.10 or newer
+- Internet access to the public pages being monitored
+
+## Installation
+
+```bash
+git clone https://github.com/Mr-sanabi/website-change-monitor-lite.git
+cd website-change-monitor-lite
+python -m venv .venv
+```
+
+Activate the virtual environment.
+
+Windows PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+macOS or Linux:
+
+```bash
+source .venv/bin/activate
+```
+
+Install runtime dependencies:
+
+```bash
+python -m pip install -r requirements.txt
 ```
 
 ## Usage
 
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-Add URLs to `data/urls.txt`:
+Create a text file with one URL per line:
 
 ```text
 https://example.com
 https://books.toscrape.com/
 ```
 
-Run the monitor:
+Run the monitor from the repository root:
 
 ```bash
-python src/main.py data/urls.txt data/report.csv
+python -m src.main data/urls.txt data/report.csv
 ```
 
-Run with a custom state file:
+Use a custom state path:
 
 ```bash
-python src/main.py data/urls.txt data/report.csv --state-file data/custom_state.json
+python -m src.main data/urls.txt data/report.csv --state-file data/custom_state.json
 ```
 
-## Input
+Empty input lines are ignored. Missing output directories are created automatically.
 
-The input file should be a plain `.txt` file with one URL per line:
+## CLI Arguments
 
-```text
-https://example.com
-https://books.toscrape.com/
-https://example.org/pricing
-```
+| Argument | Required | Description |
+|---|---:|---|
+| `input_file` | Yes | Text file containing one URL per line |
+| `output_file` | Yes | Destination path for the CSV report |
+| `--state-file` | No | JSON state path; defaults to `data/state.json` |
 
-Empty lines are ignored.
+## CSV Report
 
-## Output CSV
+The report contains these columns:
 
-The tool exports a CSV report with the following columns:
+| Column | Description |
+|---|---|
+| `url` | URL that was checked |
+| `status_code` | HTTP status when available |
+| `changed` | Monitoring result or failure type |
+| `previous_hash` | Last successfully saved hash |
+| `current_hash` | Hash produced by the current successful fetch |
+| `checked_at` | Local ISO 8601 check timestamp, precise to seconds |
+| `error` | Error details for failed requests |
 
-```text
-url
-status_code
-changed
-previous_hash
-current_hash
-checked_at
-error
-```
+### Result Values
 
-## Change Status Values
+| Value | Meaning | State updated? |
+|---|---|---:|
+| `new` | First successful observation of the URL | Yes |
+| `unchanged` | Current hash matches the saved hash | Yes |
+| `changed` | Current hash differs from the saved hash | Yes |
+| `http_error` | The server returned an HTTP error such as 404 or 500 | No |
+| `request_error` | The request failed before a valid HTTP response was available | No |
 
-```text
-new
-```
-
-The URL was not found in the previous state file. This usually happens on the first run.
-
-```text
-no
-```
-
-The current page hash matches the previously saved hash. No content change was detected.
-
-```text
-yes
-```
-
-The current page hash is different from the previously saved hash. A content change was detected.
-
-## Example Output
+Example:
 
 ```csv
 url,status_code,changed,previous_hash,current_hash,checked_at,error
-https://example.com,200,no,d003f90bc10db991b76e6fb480123cfce2cbb2b2784abe687fccccfa7ecacad8,d003f90bc10db991b76e6fb480123cfce2cbb2b2784abe687fccccfa7ecacad8,2026-06-27T11:44:36,
-https://books.toscrape.com/,200,no,0b542027efb7302d70c16553548e5251d8fda055a807643342a7b80bcb0be7f9,0b542027efb7302d70c16553548e5251d8fda055a807643342a7b80bcb0be7f9,2026-06-27T11:44:36,
+https://example.com,200,unchanged,d003f90b...,d003f90b...,2026-07-13T13:06:26,
+https://example.com/missing,404,http_error,,,2026-07-13T13:06:27,404 Client Error
 ```
 
-## State File
+## State Safety
 
-The state file stores the latest known hash for each URL:
+The JSON state file stores only the latest successful hash for each URL:
 
 ```json
 {
-  "https://example.com": "d003f90bc10db991b76e6fb480123cfce2cbb2b2784abe687fccccfa7ecacad8",
-  "https://books.toscrape.com/": "0b542027efb7302d70c16553548e5251d8fda055a807643342a7b80bcb0be7f9"
+  "https://example.com": "d003f90bc10db991b76e6fb480123cfce2cbb2b2784abe687fccccfa7ecacad8"
 }
 ```
 
-On each run, the tool:
+Failed fetches never replace a previously saved hash. State is written to a temporary sibling file and replaces the main JSON file only after serialization completes successfully.
 
-1. Loads the previous state.
-2. Fetches each URL.
-3. Extracts and hashes visible text.
-4. Compares the new hash with the previous hash.
-5. Writes a CSV report.
-6. Updates the state file.
+## Tests
 
-## Current Limitations
+Install development dependencies:
 
-This is a lightweight MVP version.
+```bash
+python -m pip install -r requirements-dev.txt
+```
 
-It currently:
+Run the complete test suite:
 
-* checks visible text content, not visual layout
-* does not send email or Telegram alerts
-* does not schedule automatic runs
-* does not compare exact text differences
-* does not handle login-protected pages
-* does not bypass captchas or anti-bot systems
+```bash
+python -m pytest -v
+```
 
-## Possible Improvements
+The regression suite covers visible-text extraction, SHA-256 stability, atomic state storage, HTTP error classification, and preservation of the last good hash after a request failure.
 
-Future versions could include:
+## Limitations
 
-* email or Telegram notifications
-* scheduled monitoring
-* text diff reports
-* keyword-specific monitoring
-* price-specific monitoring
-* separate handling for request errors
-* monitoring only selected page sections
-* storing historical snapshots
+- Monitors normalized visible text, not visual layout
+- Does not produce a line-by-line text diff
+- Does not schedule runs or send notifications
+- Does not support authenticated pages
+- Does not bypass captchas, paywalls, or anti-bot protections
+- Dynamic client-rendered content may require a browser-based implementation
 
-## What I Practiced
+## Compliance
 
-* Building a CLI monitoring tool with `argparse`
-* Reading URL lists from text files
-* Fetching public pages with `requests`
-* Extracting visible text with BeautifulSoup
-* Cleaning and normalizing page text
-* Generating SHA256 hashes
-* Comparing current and previous page states
-* Saving state in JSON
-* Exporting CSV reports
-* Structuring a Python project into clean modules
-
-## Compliance Note
-
-This tool is intended for monitoring publicly accessible web pages where automated access is allowed.
-
-It does not bypass logins, captchas, paywalls, private APIs, or restricted access systems. Always respect each website’s terms of service and robots.txt.
+This project is intended for public pages where automated access is permitted. Respect each site's terms of service, robots.txt rules, rate limits, and applicable laws.
