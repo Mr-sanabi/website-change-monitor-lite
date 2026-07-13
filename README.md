@@ -1,4 +1,10 @@
 <div align="center">
+  <img src="./assets/website-change-monitor-banner.svg" alt="Website Change Monitor Lite banner" width="100%" />
+</div>
+
+<br>
+
+<div align="center">
 
 # 🔎 Website Change Monitor Lite
 
