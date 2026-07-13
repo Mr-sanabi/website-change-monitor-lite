@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">Website Change Monitor Lite</title>
+  <desc id="desc">A Python monitoring workflow that fetches pages, hashes visible text, compares state, and preserves the last good result on failures.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101923"/>
+      <stop offset="1" stop-color="#0b1119"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#58a6ff"/>
+      <stop offset=".52" stop-color="#3fb950"/>
+      <stop offset="1" stop-color="#f2b36a"/>
+    </linearGradient>
+    <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse">
+      <path d="M36 0H0V36" fill="none" stroke="#233142" stroke-width="1" opacity=".30"/>
+    </pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity=".25"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="360" rx="20" fill="url(#bg)"/>
+  <rect width="1200" height="360" rx="20" fill="url(#grid)"/>
+  <rect x="28" y="22" width="1144" height="5" rx="2.5" fill="url(#line)"/>
+
+  <g font-family="Inter,Segoe UI,Arial,sans-serif">
+    <text x="76" y="83" fill="#9fb2c8" font-size="14" font-weight="700" letter-spacing="3">PYTHON WEB MONITORING</text>
+    <text x="76" y="132" fill="#f5f7fa" font-size="35" font-weight="800">Website Change Monitor Lite</text>
+    <text x="76" y="168" fill="#9fd3ff" font-size="17">Visible-text change detection with failure-safe state.</text>
+
+    <g font-size="13" font-weight="700" text-anchor="middle">
+      <rect x="76" y="211" width="142" height="38" rx="19" fill="#111b26" stroke="#2d3b4d"/>
+      <text x="147" y="235" fill="#d8e2ee">Requests</text>
+      <rect x="232" y="211" width="166" height="38" rx="19" fill="#111b26" stroke="#2d3b4d"/>
+      <text x="315" y="235" fill="#d8e2ee">Beautiful Soup</text>
+      <rect x="412" y="211" width="142" height="38" rx="19" fill="#111b26" stroke="#2d3b4d"/>
+      <text x="483" y="235" fill="#d8e2ee">SHA-256</text>
+    </g>
+
+    <g filter="url(#shadow)">
+      <rect x="660" y="61" width="470" height="238" rx="22" fill="#121c27" stroke="#2b3948"/>
+    </g>
+
+    <g font-size="11" font-weight="800" text-anchor="middle">
+      <rect x="690" y="94" width="100" height="62" rx="12" fill="#10243c" stroke="#58a6ff"/>
+      <text x="740" y="120" fill="#7dbdff">FETCH</text>
+      <text x="740" y="140" fill="#b8c5d4" font-size="9">HTTP + timeout</text>
+
+      <path d="M802 125h36" stroke="#738399" stroke-width="2"/>
+      <path d="m833 120 7 5-7 5" fill="none" stroke="#738399" stroke-width="2"/>
+
+      <rect x="850" y="94" width="100" height="62" rx="12" fill="#102a1b" stroke="#3fb950"/>
+      <text x="900" y="120" fill="#63d77b">HASH</text>
+      <text x="900" y="140" fill="#b8c5d4" font-size="9">visible text</text>
+
+      <path d="M962 125h36" stroke="#738399" stroke-width="2"/>
+      <path d="m993 120 7 5-7 5" fill="none" stroke="#738399" stroke-width="2"/>
+
+      <rect x="1010" y="94" width="100" height="62" rx="12" fill="#332313" stroke="#f2b36a"/>
+      <text x="1060" y="120" fill="#f6c777">SAVE</text>
+      <text x="1060" y="140" fill="#b8c5d4" font-size="9">atomic state</text>
+    </g>
+
+    <rect x="690" y="184" width="420" height="78" rx="12" fill="#090f18" stroke="#253343"/>
+    <circle cx="714" cy="209" r="5" fill="#3fb950"/>
+    <text x="731" y="214" fill="#aebdce" font-size="11">monitoring outcomes</text>
+    <text x="1085" y="214" fill="#f5f7fa" font-size="15" font-weight="800" text-anchor="end">5</text>
+    <circle cx="714" cy="238" r="5" fill="#58a6ff"/>
+    <text x="731" y="243" fill="#aebdce" font-size="11">failed fetches overwrite state</text>
+    <text x="1085" y="243" fill="#f5f7fa" font-size="15" font-weight="800" text-anchor="end">0</text>
+  </g>
+</svg>
