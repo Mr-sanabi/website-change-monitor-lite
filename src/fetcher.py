@@ -15,18 +15,29 @@ def fetch_page(url):
     try:
         response = requests.get(url, headers=headers, timeout=10)
         response.encoding = "utf-8"
+        response.raise_for_status()
 
         return {
             "url": url,
             "status_code": response.status_code,
             "html": response.text,
-            "error": ""
+            "error": "",
+            "error_type": None
         }
 
+    except requests.exceptions.HTTPError as error:
+        return {
+            "url": url,
+            "status_code": error.response.status_code,
+            "html": None,
+            "error": str(error),
+            "error_type": "http_error"
+        }
     except requests.exceptions.RequestException as error:
         return {
             "url": url,
-            "status_code": "",
-            "html": "",
-            "error": str(error)
+            "status_code": None,
+            "html": None,
+            "error": str(error),
+            "error_type": "request_error"
         }

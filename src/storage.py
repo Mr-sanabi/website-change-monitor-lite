@@ -1,6 +1,7 @@
 import json
 import csv
 import os
+from pathlib import Path
 
 def load_state(state_file):
     if not os.path.exists(state_file):
@@ -14,17 +15,27 @@ def load_state(state_file):
         return {}
 
 def save_state(state_file, state):
-    with open(state_file, "w", encoding="utf-8") as file:
+    path = Path(state_file)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    temporary_path = path.with_suffix(path.suffix + ".tmp")
+
+    with open(temporary_path, "w", encoding="utf-8") as file:
        json.dump(state, file, indent=2, ensure_ascii=False)
+
+    temporary_path.replace(path)
 
 def save_report(output_file, rows):
     if not rows:
         print("No report rows to save.")
         return
     
+    path = Path(output_file)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
     fields = rows[0].keys()
 
-    with open(output_file, "w", newline="", encoding="utf-8") as file:
+    with open(path, "w", newline="", encoding="utf-8") as file:
         writer = csv.DictWriter(file, fieldnames=fields)
         writer.writeheader()
         writer.writerows(rows)

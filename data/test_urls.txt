@@ -1,0 +1,3 @@
+https://example.com
+https://books.toscrape.com/definitely-missing-page.html
+https://this-domain-does-not-exist.invalid

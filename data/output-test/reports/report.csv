@@ -1,0 +1,4 @@
+url,status_code,changed,previous_hash,current_hash,checked_at,error
+https://example.com,200,unchanged,d003f90bc10db991b76e6fb480123cfce2cbb2b2784abe687fccccfa7ecacad8,d003f90bc10db991b76e6fb480123cfce2cbb2b2784abe687fccccfa7ecacad8,2026-07-13T13:14:52,
+https://books.toscrape.com/definitely-missing-page.html,404,http_error,,,2026-07-13T13:14:52,404 Client Error: Not Found for url: https://books.toscrape.com/definitely-missing-page.html
+https://this-domain-does-not-exist.invalid,,request_error,,,2026-07-13T13:14:52,"HTTPSConnectionPool(host='this-domain-does-not-exist.invalid', port=443): Max retries exceeded with url: / (Caused by NameResolutionError(""HTTPSConnection(host='this-domain-does-not-exist.invalid', port=443): Failed to resolve 'this-domain-does-not-exist.invalid' ([Errno 11001] getaddrinfo failed)""))"
